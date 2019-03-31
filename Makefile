@@ -1,12 +1,17 @@
-SOURCES = $(wildcard *.c)
-OBJS = $(SOURCES:.c=.o)
+OBJS = lux.o tsl2561.o main.o
 CFLAGS = -W -Wall -Wextra
+CXXFLAGS = -W -Wall -Wextra
 LDFLAGS = -lm
+BINARY = backlight-control
 
-all: $(OBJS)
+
+all: $(BINARY)
+
+$(BINARY): $(OBJS)
+	$(CXX) -o $@ $^ $(LDFLAGS)
 
 clean:
-	rm $(OBJS)
+	rm -f $(OBJS) $(BINARY)
 
 .PHONY: all clean
 

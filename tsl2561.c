@@ -1,16 +1,16 @@
 /*
- * @author 	Alexander Rüedlinger <a.rueedlinger@gmail.com>
- * @date 	22.02.2015
- * 
+ * @author	Alexander RÃ¼edlinger <a.rueedlinger@gmail.com>
+ * @date	22.02.2015
+ *
  * A driver written in C for the sensor TSL2561.
  *
  * This driver is a port of the Adafruit TSL2561 Light Sensor Driver.
- * 
- * The original driver is written by Kevin (KTOWN) Townsend 
+ *
+ * The original driver is written by Kevin (KTOWN) Townsend
  * for Adafruit Industries.
- * 
+ *
  * source: https://github.com/adafruit/Adafruit_TSL2561
- * 
+ *
  */
 
 
@@ -34,10 +34,10 @@
  * Define debug function.
  *
  */
-#if __TSL2561_DEBUG__				
+#if __TSL2561_DEBUG__
 #define DEBUG(...)	printf(__VA_ARGS__)
 #else
-#define DEBUG(...)
+#define DEBUG(...)	do { } while (0)
 #endif
 
 
@@ -68,15 +68,15 @@
 
 
 
-/* 
+/*
  * Autogain thresholds
  */
 #define TSL2561_AGC_THI_13MS 4850	// Max value at Ti 13ms = 5047
-#define TSL2561_AGC_TLO_13MS 100	
+#define TSL2561_AGC_TLO_13MS 100
 #define TSL2561_AGC_THI_101MS 36000 // Max value at Ti 101ms = 37177
 #define TSL2561_AGC_TLO_101MS 200
 #define TSL2561_AGC_THI_402MS 63000	// Max value at Ti 402ms = 65535
-#define TSL2561_AGC_TLO_402MS 500	
+#define TSL2561_AGC_TLO_402MS 500
 
 
 
@@ -102,7 +102,7 @@
 
 
 
-/* 
+/*
  * T, FN, and CL Package coefficients
  */
 #define TSL2561_K1T 0x0040
@@ -132,7 +132,7 @@
 
 
 
-/* 
+/*
  * CS package coefficients
  */
 #define TSL2561_K1C 0x0043
@@ -194,10 +194,10 @@ void tsl2561_init_error_cleanup(void *_tsl);
  */
 
 
- 
+
 /*
  * Writes a byte on the i2c bus.
- * 
+ *
  * @param tsl sensor
  * @param register
  * @param value
@@ -206,12 +206,9 @@ void tsl2561_init_error_cleanup(void *_tsl);
 uint8_t tsl2561_write_byte_data(void *_tsl, uint8_t reg, uint8_t value) {
 	tsl2561_t *tsl = TO_TSL(_tsl);
 	uint8_t data = i2c_smbus_write_byte_data(tsl->file, reg, value);
-	
+
 	DEBUG("device %#x: write %#x to register %#x\n", tsl->address, value, reg);
-	
-	if(data < 0)
-		DEBUG("error: helper_write8()\n");
-	
+
 	return data;
 }
 
@@ -219,7 +216,7 @@ uint8_t tsl2561_write_byte_data(void *_tsl, uint8_t reg, uint8_t value) {
 
 /*
  * Writes a word on the i2c bus.
- * 
+ *
  * @param tsl sensor
  * @param register
  * @param value
@@ -228,12 +225,9 @@ uint8_t tsl2561_write_byte_data(void *_tsl, uint8_t reg, uint8_t value) {
 uint16_t tsl2561_write_word_data(void *_tsl, uint8_t reg, uint8_t value) {
 	tsl2561_t *tsl = TO_TSL(_tsl);
 	uint16_t data = i2c_smbus_write_word_data(tsl->file, reg, value);
-	
+
 	DEBUG("device %#x: write %#x to register %#x\n", tsl->address, value, reg);
 
-	if(data < 0)
-		DEBUG("error: helper_write16()\n");
-	
 	return data;
 }
 
@@ -241,7 +235,7 @@ uint16_t tsl2561_write_word_data(void *_tsl, uint8_t reg, uint8_t value) {
 
 /*
  * Reads a word from the i2c bus.
- * 
+ *
  * @param tsl sensor
  * @param register
  * @return data
@@ -250,12 +244,12 @@ int16_t tsl2561_read_word_data(void *_tsl, uint8_t reg) {
 	tsl2561_t *tsl = TO_TSL(_tsl);
 
 	int error = tsl2561_set_addr(_tsl);
-	if(error < 0)
+	if (error < 0)
 		return -1;
 
 	int16_t data = i2c_smbus_read_word_data(tsl->file, reg);
 	DEBUG("device %#x: read %#x from register %#x\n", tsl->address, data, reg);
- 
+
 	return data;
 }
 
@@ -263,14 +257,14 @@ int16_t tsl2561_read_word_data(void *_tsl, uint8_t reg) {
 
 /*
  * Sets the address for the i2c device file.
- * 
+ *
  * @param tsl sensor
  */
 int tsl2561_set_addr(void *_tsl) {
 	tsl2561_t* tsl = TO_TSL(_tsl);
 	int error;
 
-	if((error = ioctl(tsl->file, I2C_SLAVE, tsl->address)) < 0)
+	if ((error = ioctl(tsl->file, I2C_SLAVE, tsl->address)) < 0)
 		DEBUG("error: ioctl() failed\n");
 
 	return error;
@@ -280,17 +274,17 @@ int tsl2561_set_addr(void *_tsl) {
 
 /*
  * Frees allocated memory in the init function.
- * 
+ *
  * @param tsl2561 sensor
  */
 void tsl2561_init_error_cleanup(void *_tsl) {
 	tsl2561_t* tsl = TO_TSL(_tsl);
-	
-	if(tsl->i2c_device != NULL) {
+
+	if (tsl->i2c_device != NULL) {
 		free(tsl->i2c_device);
 		tsl->i2c_device = NULL;
 	}
-	
+
 	free(tsl);
 	tsl = NULL;
 }
@@ -299,22 +293,22 @@ void tsl2561_init_error_cleanup(void *_tsl) {
 /*
  * Implementation of the interface functions
  */
- 
+
 
 /**
  * Creates a new TSL2561 sensor object with the specified i2c address and i2c device file path.
- * 
+ *
  * @param i2c address
  * @param i2c device file path
  * @return tsl sensor
  *
- * Possible i2c addresses are: 
- * 	0x29 	(low)
- *	0x39 	(default)
- *	0x49 	(high)
+ * Possible i2c addresses are:
+ *	0x29	(low)
+ *	0x39	(default)
+ *	0x49	(high)
  *
  * Example values for i2c device file paths are;
- *	/dev/i2c-0 	(for Raspberry Pi Revision 1.0)
+ *	/dev/i2c-0	(for Raspberry Pi Revision 1.0)
  *	/dev/i2c-1	(for Rasbperry Pi Revision 2.0)
  *
  * Use i2cdetect to find the correct i2c bus.
@@ -322,10 +316,10 @@ void tsl2561_init_error_cleanup(void *_tsl) {
  */
 void* tsl2561_init(int address, const char* i2c_device_filepath) {
 	DEBUG("device: init using address %#x and i2cbus %s\n", address, i2c_device_filepath);
-	
+
 	// setup tsl2561
 	void *_tsl = malloc(sizeof(tsl2561_t));
-	if(_tsl == NULL)  {
+	if (_tsl == NULL)  {
 		DEBUG("error: malloc returns NULL pointer\n");
 		return NULL;
 	}
@@ -339,7 +333,7 @@ void* tsl2561_init(int address, const char* i2c_device_filepath) {
 
 	// setup i2c device path
 	tsl->i2c_device = (char*) malloc(strlen(i2c_device_filepath) * sizeof(char));
-	if(tsl->i2c_device == NULL) {
+	if (tsl->i2c_device == NULL) {
 		DEBUG("error: malloc returns NULL pointer!\n");
 		tsl2561_init_error_cleanup(_tsl);
 		return NULL;
@@ -347,17 +341,17 @@ void* tsl2561_init(int address, const char* i2c_device_filepath) {
 
 	// copy string
 	strcpy(tsl->i2c_device, i2c_device_filepath);
-	
+
 	// open i2c device
 	int file;
-	if((file = open(tsl->i2c_device, O_RDWR)) < 0) {
+	if ((file = open(tsl->i2c_device, O_RDWR)) < 0) {
 		DEBUG("error: open() failed\n");
 		tsl2561_init_error_cleanup(_tsl);
 		return NULL;
 	}
 	tsl->file = file;
 
-	if(tsl2561_set_addr(_tsl) < 0) {
+	if (tsl2561_set_addr(_tsl) < 0) {
 		tsl2561_init_error_cleanup(_tsl);
 		return NULL;
 	}
@@ -375,7 +369,7 @@ void* tsl2561_init(int address, const char* i2c_device_filepath) {
 
 /**
  * Sets the type for this TSL2561 sensor.
- * 
+ *
  * @param tsl sensor
  * @param type
  *
@@ -393,7 +387,7 @@ void tsl2561_set_type(void *_tsl, int type) {
 
 /**
  * Sets the time integration and gain value for this TSL2561 sensor.
- * 
+ *
  * @param tsl sensor
  * @param integration time
  * @param gain
@@ -422,13 +416,13 @@ void tsl2561_set_timing(void *_tsl, int integration_time, int gain) {
 
 /**
  * Sets the gain value for this TSL2561 sensor.
- * 
+ *
  * @param tsl sensor
  * @param gain
  *
  * Possible gain values are:
- * 	TSL2561_GAIN_0X
- * 	TSL2561_GAIN_16X
+ *	TSL2561_GAIN_0X
+ *	TSL2561_GAIN_16X
  *
  */
 void tsl2561_set_gain(void *_tsl, int gain) {
@@ -440,7 +434,7 @@ void tsl2561_set_gain(void *_tsl, int gain) {
 
 /**
  * Sets the integration value for this TSL2561 sensor.
- * 
+ *
  * @param tsl sensor
  * @param time value
  *
@@ -459,7 +453,7 @@ void tsl2561_set_integration_time(void *_tsl, int time) {
 
 /**
  * Enables autogain for this TSL2561 sensor.
- * 
+ *
  * @param tsl sensor
  */
 void tsl2561_enable_autogain(void *_tsl) {
@@ -482,7 +476,7 @@ void tsl2561_disable_autogain(void *_tsl) {
 
 /**
  * Enables this TSL2561 sensor.
- * 
+ *
  * @param tsl sensor
  * @return error code
  */
@@ -508,21 +502,21 @@ int tsl2561_disable(void *_tsl) {
  * @param tsl sensor
  */
 void tsl2561_close(void *_tsl) {
-	if(_tsl == NULL) {
+	if (_tsl == NULL) {
 		return;
 	}
-	
+
 	DEBUG("close tsl2561 device\n");
 	tsl2561_t *tsl = TO_TSL(_tsl);
-	
-	if(close(tsl->file) < 0)
+
+	if (close(tsl->file) < 0)
 		DEBUG("error: %s close() failed\n", tsl->i2c_device);
-	
+
 	free(tsl->i2c_device); // free string
 	tsl->i2c_device = NULL;
 	free(tsl); // free tsl structure
 	_tsl = NULL;
-} 
+}
 
 
 /*
@@ -530,33 +524,33 @@ void tsl2561_close(void *_tsl) {
  *
  */
 #define TSL2561_FACTOR_US 1000000
-	
+
 void tsl2561_read(void *_tsl, int *broadband, int *ir) {
 	tsl2561_enable(_tsl);
 	tsl2561_t *tsl = TO_TSL(_tsl);
 
 	// wait until ADC is complete
-	switch(tsl->integration_time) {
-		case TSL2561_INTEGRATION_TIME_402MS:
-			usleep(0.403 * TSL2561_FACTOR_US);
-			break;
+	switch (tsl->integration_time) {
+	case TSL2561_INTEGRATION_TIME_402MS:
+		usleep(0.403 * TSL2561_FACTOR_US);
+		break;
 
-		case TSL2561_INTEGRATION_TIME_101MS:
-			usleep(0.102 * TSL2561_FACTOR_US);
-			break;
+	case TSL2561_INTEGRATION_TIME_101MS:
+		usleep(0.102 * TSL2561_FACTOR_US);
+		break;
 
-		case TSL2561_INTEGRATION_TIME_13MS:
-			usleep(0.014 * TSL2561_FACTOR_US);
-			break;
-		default:
-			usleep(0.403 * TSL2561_FACTOR_US);
-			break;
+	case TSL2561_INTEGRATION_TIME_13MS:
+		usleep(0.014 * TSL2561_FACTOR_US);
+		break;
+	default:
+		usleep(0.403 * TSL2561_FACTOR_US);
+		break;
 	}
 
 	*broadband = tsl2561_read_word_data(_tsl, TSL2561_CMD_BIT | TSL2561_WORD_BIT | TSL2561_REG_CH0_LOW);
 	*ir = tsl2561_read_word_data(_tsl, TSL2561_CMD_BIT | TSL2561_WORD_BIT | TSL2561_REG_CH1_LOW);
-	
-	if( *broadband < 0 || *ir < 0){
+
+	if ( *broadband < 0 || *ir < 0) {
 		DEBUG("error: i2c_smbus_read_word_data() failed\n");
 	} else {
 		DEBUG("bb=%i, ir=%i\n", *broadband, *ir);
@@ -571,22 +565,22 @@ void tsl2561_read(void *_tsl, int *broadband, int *ir) {
  */
 long tsl2561_lux(void *_tsl) {
 	tsl2561_t *tsl = TO_TSL(_tsl);
-	int visible,  channel1, threshold;	
+	int visible,  channel1, threshold;
 	tsl2561_luminosity(_tsl, &visible, &channel1);
 
-	switch(tsl->integration_time) {
-		case TSL2561_INTEGRATION_TIME_13MS:
-			threshold = TSL2561_CLIPPING_13MS;
-			break;
-		case TSL2561_INTEGRATION_TIME_101MS:
-			threshold = TSL2561_CLIPPING_101MS;
-			break;
-		default:
-			threshold = TSL2561_CLIPPING_402MS;
-			break;
+	switch (tsl->integration_time) {
+	case TSL2561_INTEGRATION_TIME_13MS:
+		threshold = TSL2561_CLIPPING_13MS;
+		break;
+	case TSL2561_INTEGRATION_TIME_101MS:
+		threshold = TSL2561_CLIPPING_101MS;
+		break;
+	default:
+		threshold = TSL2561_CLIPPING_402MS;
+		break;
 	}
 
-	if((visible > threshold) || (channel1 > threshold)) 
+	if ((visible > threshold) || (channel1 > threshold))
 		return 0;
 
 	return tsl2561_compute_lux(_tsl, visible, channel1);
@@ -595,40 +589,40 @@ long tsl2561_lux(void *_tsl) {
 
 void tsl2561_luminosity(void *_tsl, int *channel0, int *channel1) {
 	tsl2561_t *tsl = TO_TSL(_tsl);
-	uint16_t hi, lo;	
+	uint16_t hi, lo;
 	bool agc_check = false, valid = false;
 
-	if(!tsl->autogain) { 
-		tsl2561_read(_tsl, channel0, channel1);	
+	if (!tsl->autogain) {
+		tsl2561_read(_tsl, channel0, channel1);
 		return;
 	}
 
 	while (!valid) {
-		switch(tsl->integration_time) {
-			case TSL2561_INTEGRATION_TIME_13MS:
-				hi = TSL2561_AGC_THI_13MS;
-				lo = TSL2561_AGC_TLO_13MS;
-				break;
+		switch (tsl->integration_time) {
+		case TSL2561_INTEGRATION_TIME_13MS:
+			hi = TSL2561_AGC_THI_13MS;
+			lo = TSL2561_AGC_TLO_13MS;
+			break;
 
-			case TSL2561_INTEGRATION_TIME_101MS:
-				hi = TSL2561_AGC_THI_101MS;
-				lo = TSL2561_AGC_TLO_101MS;
-				break;
-		
-			default: 
-				hi = TSL2561_AGC_THI_402MS;
-				lo = TSL2561_AGC_TLO_402MS;
-				break;	
+		case TSL2561_INTEGRATION_TIME_101MS:
+			hi = TSL2561_AGC_THI_101MS;
+			lo = TSL2561_AGC_TLO_101MS;
+			break;
+
+		default:
+			hi = TSL2561_AGC_THI_402MS;
+			lo = TSL2561_AGC_TLO_402MS;
+			break;
 		}
-		
+
 		tsl2561_read(_tsl, channel0, channel1);
-		if(!agc_check) {
-			if((*channel0 < lo) && (tsl->gain == TSL2561_GAIN_0X)) {
+		if (!agc_check) {
+			if ((*channel0 < lo) && (tsl->gain == TSL2561_GAIN_0X)) {
 				tsl2561_set_gain(_tsl, TSL2561_GAIN_16X);
 				tsl2561_read(_tsl, channel0, channel1);
 				agc_check = true;
 
-			} else if((*channel0 > hi) && (tsl->gain == TSL2561_GAIN_16X)) {
+			} else if ((*channel0 > hi) && (tsl->gain == TSL2561_GAIN_16X)) {
 				tsl2561_set_gain(_tsl, TSL2561_GAIN_0X);
 				tsl2561_read(_tsl, channel0, channel1);
 				agc_check = true;
@@ -654,22 +648,22 @@ unsigned long tsl2561_compute_lux(void *_tsl, int ch0, int ch1) {
 	// first, scale the channel values depending on the gain and integration time
 	// 16X, 402mS is nominal.
 	// scale if integration time is NOT 402 msec
-	switch(tsl->integration_time) {
-		case TSL2561_INTEGRATION_TIME_13MS:
-			ch_scale = CH_SCALE_TINT0;
-			break;
+	switch (tsl->integration_time) {
+	case TSL2561_INTEGRATION_TIME_13MS:
+		ch_scale = CH_SCALE_TINT0;
+		break;
 
-		case TSL2561_INTEGRATION_TIME_101MS:
-			ch_scale = CH_SCALE_TINT1;
-			break;
-		
-		default:
-			ch_scale = (1 << CH_SCALE);
-			break;
+	case TSL2561_INTEGRATION_TIME_101MS:
+		ch_scale = CH_SCALE_TINT1;
+		break;
+
+	default:
+		ch_scale = (1 << CH_SCALE);
+		break;
 	}
 
 	// scale if gain is NOT 16X
-	if(!tsl->gain) 
+	if (!tsl->gain)
 		ch_scale = (ch_scale << 4);	// scale 1X to 16X
 
 	// scale the channel values
@@ -680,65 +674,61 @@ unsigned long tsl2561_compute_lux(void *_tsl, int ch0, int ch1) {
 
 	// find the ratio of the channel values (Channel1/Channel0)
 	// protect against divide by zero
-	if(channel0 != 0) 
+	if (channel0 != 0)
 		ratio1 = (channel1 << (RATIO_SCALE + 1)) / channel0;
-	
+
 	// round the ratio value
 	ratio = (ratio1 + 1) >> 1;
 
 	int b, m;
 
 	// is ratio <= eachBreak ?
-	switch(tsl->type){	
-		case 1:
-			if((ratio >= 0) && (ratio <= TSL2561_K1C)){ 
-				b = TSL2561_B1C; m = TSL2561_M1C; 
-			} else if(ratio <= TSL2561_K2C) {
-				b = TSL2561_B2C; m = TSL2561_M2C;
-			} else if(ratio <= TSL2561_K3C) {
-				b = TSL2561_B3C; m = TSL2561_M3C;
-			} else if(ratio <= TSL2561_K4C) {
-				b = TSL2561_B4C; m = TSL2561_M4C;
-			} else if (ratio <= TSL2561_K5T) {
-				b = TSL2561_B5C; m = TSL2561_M5C;
-			} else if(ratio <= TSL2561_K6T) {
-				b = TSL2561_B6C; m = TSL2561_M6C;
-			} else if(ratio <= TSL2561_K7T) {
-				b = TSL2561_B7C; m = TSL2561_M7C;
-			} else if(ratio > TSL2561_K8C) {
-				b = TSL2561_B8C; m = TSL2561_M8C;
-			}
-			break;
-		
-		case 0:
-		default:
-			if((ratio >= 0) && (ratio <= TSL2561_K1T)){ 
-				b = TSL2561_B1T; m = TSL2561_M1T;
-			} else if(ratio <= TSL2561_K2T) {
-				b = TSL2561_B2T; m = TSL2561_M2T;
-			} else if(ratio <= TSL2561_K3T) {
-				b = TSL2561_B3T; m = TSL2561_M3T;
-			} else if(ratio <= TSL2561_K4T) {
-				b = TSL2561_B4T; m = TSL2561_M4T;
-			} else if (ratio <= TSL2561_K5T) {
-				b = TSL2561_B5T; m = TSL2561_M5T;
-			} else if(ratio <= TSL2561_K6T) {
-				b = TSL2561_B6T; m = TSL2561_M6T;
-			} else if(ratio <= TSL2561_K7T) {
-				b = TSL2561_B7T; m = TSL2561_M7T;
-			} else if(ratio > TSL2561_K8T) {
-				b = TSL2561_B8T; m = TSL2561_M8T;
-			}
-			break;
-	}	
-	
+	switch (tsl->type) {
+	case 1:
+		if (ratio <= TSL2561_K1C) {
+			b = TSL2561_B1C; m = TSL2561_M1C;
+		} else if (ratio <= TSL2561_K2C) {
+			b = TSL2561_B2C; m = TSL2561_M2C;
+		} else if (ratio <= TSL2561_K3C) {
+			b = TSL2561_B3C; m = TSL2561_M3C;
+		} else if (ratio <= TSL2561_K4C) {
+			b = TSL2561_B4C; m = TSL2561_M4C;
+		} else if (ratio <= TSL2561_K5T) {
+			b = TSL2561_B5C; m = TSL2561_M5C;
+		} else if (ratio <= TSL2561_K6T) {
+			b = TSL2561_B6C; m = TSL2561_M6C;
+		} else if (ratio <= TSL2561_K7T) {
+			b = TSL2561_B7C; m = TSL2561_M7C;
+		} else if (ratio > TSL2561_K8C) {
+			b = TSL2561_B8C; m = TSL2561_M8C;
+		}
+		break;
+
+	case 0:
+	default:
+		if (ratio <= TSL2561_K1T) {
+			b = TSL2561_B1T; m = TSL2561_M1T;
+		} else if (ratio <= TSL2561_K2T) {
+			b = TSL2561_B2T; m = TSL2561_M2T;
+		} else if (ratio <= TSL2561_K3T) {
+			b = TSL2561_B3T; m = TSL2561_M3T;
+		} else if (ratio <= TSL2561_K4T) {
+			b = TSL2561_B4T; m = TSL2561_M4T;
+		} else if (ratio <= TSL2561_K5T) {
+			b = TSL2561_B5T; m = TSL2561_M5T;
+		} else if (ratio <= TSL2561_K6T) {
+			b = TSL2561_B6T; m = TSL2561_M6T;
+		} else if (ratio <= TSL2561_K7T) {
+			b = TSL2561_B7T; m = TSL2561_M7T;
+		} else if (ratio > TSL2561_K8T) {
+			b = TSL2561_B8T; m = TSL2561_M8T;
+		}
+		break;
+	}
+
 	unsigned long tmp = (channel0 * b) - (channel1 * m);
-
-	if(tmp < 0) 
-		tmp = 0;
-
 	tmp += (1 << (LUX_SCALE-1));
 	unsigned long lux = (tmp >> LUX_SCALE);
 
-	return lux;		
+	return lux;
 }

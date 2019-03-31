@@ -26,15 +26,19 @@
 #define TSL2561_GAIN_0X 0x00
 #define TSL2561_GAIN_16X 0x10
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int tsl2561_enable(void *_tsl);
 int tsl2561_disable(void *_tsl);
 
 void* tsl2561_init(int address, const char *i2c_device_filepath);
 void tsl2561_close(void *_tsl);
 
-void tsl2561_set_timing(void *_tsl, int integration_time, int gain);
-void tsl2561_set_gain(void *_tsl, int gain);
-void tsl2561_set_integration_time(void *_tsl, int ingeration_time);
+int tsl2561_set_timing(void *_tsl, int integration_time, int gain);
+int tsl2561_set_gain(void *_tsl, int gain);
+int tsl2561_set_integration_time(void *_tsl, int ingeration_time);
 void tsl2561_set_type(void *_tsl, int type);
 
 void tsl2561_read(void *_tsl, int *visible, int *ir);
@@ -44,3 +48,6 @@ void tsl2561_luminosity(void *_tsl, int *visible, int *ir);
 void tsl2561_enable_autogain(void *_tsl);
 void tsl2561_disable_autogain(void *_tsl);	
 
+#ifdef __cplusplus
+}
+#endif

@@ -1,4 +1,4 @@
-OBJS = lux.o tsl2561.o main.o
+OBJS = lux.o tsl2561.o backlight.o main.o
 CFLAGS = -W -Wall -Wextra
 CXXFLAGS = -W -Wall -Wextra
 LDFLAGS = -lm

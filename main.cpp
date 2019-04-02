@@ -14,10 +14,11 @@ int main()
 			if (isatty(1)) {
 				std::cout << "Value: " << value << "\n";
 			}
-			if (value < 1) {
-				backlight.set(11);
-			} else if (value < 10) {
-				backlight.set(20);
+
+			/* 11 is the minimum value where the backlight
+			 * is active */
+			if (value < 50) {
+				backlight.set(11 + value);
 			} else if (value < 100) {
 				backlight.set(150);
 			} else {
